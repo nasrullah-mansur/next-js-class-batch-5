@@ -1,0 +1,10 @@
+Front End;
+1. UI / UX 
+2. Development using API, 
+
+
+Backend Development;
+1. API Building;
+2. Auth/Role/Permission Management;
+3. Database Management;
+
