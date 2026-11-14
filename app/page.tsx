@@ -1,15 +1,19 @@
-import { getUsers } from "@/utils/modules/getUsers";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 
 
 export default async function Home() {
 
-  const users = await getUsers();
+  const cookieStore = await cookies()
+  const db = createClient(cookieStore)
+
+  const { data: users } = await db.from('users').select()
 
   return (
     <div>
 
-      {users.map((item: { id: string; name: string }) => (
+      {users && users.map((item: { id: string; name: string }) => (
         <p key={item.id}>{item.name}</p>
       ))}
     </div>
