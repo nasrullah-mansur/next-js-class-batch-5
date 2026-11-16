@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState, type FormEvent } from "react";
 
 export default function UserCrud() {
-    const [users, setUsers] = useState<any[] | null>([]);
+    const [users, setUsers] = useState<any[]>([]);
     const [formData, setFormData] = useState({
         name: "",
         email: ""
@@ -18,9 +18,50 @@ export default function UserCrud() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const { data } = await db.from('users')
-            .insert(formData)
-            .select();
+        // const { data, error } = await db.from('users')
+        //     .insert(formData)
+        //     .select();
+
+
+        // if (!error) {
+        //     setUsers((prev) => {
+        //         return [
+        //             ...data,
+        //             ...prev,
+        //         ]
+        //     })
+
+        //     setFormData({
+        //         email: "",
+        //         name: ""
+        //     })
+        // }
+
+        const res = await fetch('http://localhost:3000/api', {
+            method: "POSt",
+            body: JSON.stringify(formData),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+
+        const responseData = await res.json();
+
+        if (responseData.status) {
+            setUsers((prev) => {
+                return [
+                    ...responseData.data,
+                    ...prev,
+                ]
+            })
+
+            setFormData({
+                email: "",
+                name: ""
+            })
+        }
+
+
 
     }
 
@@ -29,9 +70,9 @@ export default function UserCrud() {
 
 
         const getData = async () => {
-            const { data } = await db.from('users').select();
+            const { data } = await db.from('users').select().order("id", { ascending: false });
 
-            setUsers(data);
+            setUsers(data as any[]);
 
         }
 
