@@ -1,0 +1,12 @@
+Technologies;
+
+1. Next;
+2. Shadcn;
+3. Tailwind CSS;
+4. Supabase;
+5. Authentication;
+6. Cludinary Image uploading;
+7. Email Sending;
+8. Form Validation Zod & React Hook Form;
+9. SSLCommerze for Payment;
+10. Justand;
