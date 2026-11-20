@@ -13,7 +13,7 @@ export default function Header() {
 
                 <div className="flex gap-x-3 items-center">
                     <Link href={"/"}>Home</Link>
-                    <Link href={"/"}>Product</Link>
+                    <Link href={"/products"}>Products</Link>
                     <Link href={"/"}>My Cart</Link>
                 </div>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ToastContainer } from 'react-toastify';
 import "./globals.css";
 
 
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body cz-shortcut-listen="true" className="min-h-full flex flex-col">
         {children}
+        <ToastContainer />
       </body>
     </html>
   );
