@@ -25,7 +25,7 @@ export default function ProductCart({ product }: { product: ProductType }) {
             <p className="text-sm">${product_price_range(product.price_and_size)} <span className="text-xs">({product_discount(product.discount, product.discount_type)})</span></p>
 
             <Button nativeButton={false} className="flex justify-center items-center w-full mt-3 cursor-pointer"
-                render={<Link href={`/product/${product.slug}`}>
+                render={<Link href={`/products/${product.slug}`}>
                     Order Now
                 </Link>}
             >

@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { useCartStore } from "@/providers/cartProvider";
 import { ProductType } from "@/types/product";
+import { generateEightDigitNumber } from "@/utils/genarateEightDigitsNumber";
 import { product_discount } from "@/utils/product_discount";
+import { productPriceAfterDiscount } from "@/utils/product_price_after_discount";
 import { product_price_range } from "@/utils/product_price_range";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -15,7 +18,12 @@ import { toast } from "react-toastify";
 export default function ProductDetails({ product }: { product: ProductType }) {
     const [orderBtnActive, setOrderBtnActive] = useState(true);
 
-    const [price_and_size, setPrice_and_size] = useState<{ id: number; count: number }[]>([]);
+    const [price_and_size, setPrice_and_size] = useState<{ id: number; count: number; price: number; size: string; }[]>([]);
+
+    const { carts, addToCart } = useCartStore((state) => state)
+
+
+
 
 
     const checkCheckboxActive = (id: number) => {
@@ -28,7 +36,7 @@ export default function ProductDetails({ product }: { product: ProductType }) {
         }
     }
 
-    const handleCheckChanged = (id: number) => {
+    const handleCheckChanged = (id: number, price: number, size: string) => {
         const isExistOnState = price_and_size.find(item => item.id === id);
 
         if (isExistOnState) {
@@ -43,6 +51,8 @@ export default function ProductDetails({ product }: { product: ProductType }) {
             {
                 id: id,
                 count: 1,
+                price,
+                size,
             }
         ])
 
@@ -62,9 +72,6 @@ export default function ProductDetails({ product }: { product: ProductType }) {
             });
         })
     }
-
-    console.log(price_and_size);
-
 
     // Handle Order;
 
@@ -90,6 +97,37 @@ export default function ProductDetails({ product }: { product: ProductType }) {
         }
     }
 
+    const handleAddToCart = () => {
+        setOrderBtnActive(false);
+        if (price_and_size.length === 0) {
+            toast.error("Please select a size first then order");
+            setOrderBtnActive(true);
+        }
+
+        price_and_size.forEach(item => {
+
+            addToCart({
+                id: generateEightDigitNumber(),
+                product_id: product.id,
+                price_and_size_id: item.id,
+                title: product.title,
+                image: product.image,
+                mainPrice: item.price,
+                discountPrice: productPriceAfterDiscount(item.price, product.discount, product.discount_type),
+                size: item.size,
+                discount: product.discount,
+                discount_type: product.discount_type,
+                quantity: item.count
+            })
+
+
+        })
+
+
+
+        setOrderBtnActive(true);
+    }
+
 
     return (
         <>
@@ -100,8 +138,12 @@ export default function ProductDetails({ product }: { product: ProductType }) {
                 {product.price_and_size.map(item => (
                     <li key={item.id} className={`border p-3 rounded-sm ${checkCheckboxActive(item.id) == true ? "border-gray-500" : "border-gray-200"}`}>
                         <div className="flex items-center gap-x-2">
-                            <Checkbox onCheckedChange={() => handleCheckChanged(item.id)} checked={checkCheckboxActive(item.id)} id={`size-${item.id}`} />
-                            <Label htmlFor={`size-${item.id}`}>{`Size: ${item.size}, price: ${item.price}`}</Label>
+                            <Checkbox onCheckedChange={() => handleCheckChanged(item.id, item.price, item.size)} checked={checkCheckboxActive(item.id)} id={`size-${item.id}`} />
+                            <Label htmlFor={`size-${item.id}`}>
+                                {`Size: ${item.size}, price: ${productPriceAfterDiscount(item.price, product.discount, product.discount_type)}`}
+
+                                <span className="line-through">({item.price})</span>
+                            </Label>
                         </div>
 
                         {checkCheckboxActive(item.id) &&
@@ -123,7 +165,12 @@ export default function ProductDetails({ product }: { product: ProductType }) {
                     {!orderBtnActive && <Spinner />}
                     <span>{!orderBtnActive ? "Processing, please wait ..." : "Order Now"}</span>
                 </Button>
-                <Button className={"w-full"}>Add To Cart</Button>
+                <Button disabled={!orderBtnActive} className={"w-full"} onClick={handleAddToCart}>
+
+                    {!orderBtnActive && <Spinner />}
+                    <span>{!orderBtnActive ? "Processing, please wait ..." : "Add To Cart"}</span>
+
+                </Button>
             </div>
         </>
     )
