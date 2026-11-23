@@ -10,10 +10,12 @@ export type CartStore = {
 }
 
 export type CounterActions = {
-    addToCart: (cart: CartType) => void
-    removeFromCart: (id: number) => void
-    incrementQuantity: (id: number) => void
-    decrementQuantity: (id: number) => void
+    addToCart: (cart: CartType) => void;
+    removeFromCart: (id: number) => void;
+    incrementQuantity: (id: number) => void;
+    decrementQuantity: (id: number) => void;
+    updateQuantity: (id: number, quantity: number) => void;
+
 }
 
 export type CounterDataStore = CartStore & CounterActions
@@ -91,6 +93,18 @@ export const createCartStore = (
                                 : item
                         ),
                     })),
+                updateQuantity: (id, quantity) => set((state) => ({
+                    carts: state.carts.map(item => {
+                        if (item.id === id) {
+                            return {
+                                ...item,
+                                quantity,
+                            }
+                        }
+
+                        return item;
+                    })
+                }))
             }),
             {
                 name: 'cart-storage',

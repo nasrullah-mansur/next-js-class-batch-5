@@ -137,7 +137,8 @@ export const products: ProductType[] = [
 
 
 
-export default function Home() {
+export default async function Home() {
+
   return (
     <>
       <LatestProduct products={products} />

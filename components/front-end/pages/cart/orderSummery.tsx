@@ -1,9 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/providers/cartProvider";
 
 
 export default function OrderSummery() {
+
+    const { carts } = useCartStore(store => store);
+    const deliveryCharge = 85;
+
+    const subTotal = carts.reduce((total, current) => {
+        return total + (current.discountPrice * current.quantity);
+    }, 0);
+
     return (
         <>
             <div className=" border mt-[50px] border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
@@ -21,12 +30,12 @@ export default function OrderSummery() {
                     <dl className="space-y-3 text-sm">
                         <div className="flex items-center justify-between">
                             <dt className="text-zinc-600">Subtotal</dt>
-                            <dd className="font-medium text-zinc-900 tabular-nums">৳ 3,150</dd>
+                            <dd className="font-medium text-zinc-900 tabular-nums">৳ {subTotal}</dd>
                         </div>
 
                         <div className="flex items-center justify-between">
                             <dt className="text-zinc-600">Delivery Charge</dt>
-                            <dd className="font-medium text-zinc-900 tabular-nums">৳ 85</dd>
+                            <dd className="font-medium text-zinc-900 tabular-nums">৳ {deliveryCharge}</dd>
                         </div>
                     </dl>
 
@@ -38,7 +47,7 @@ export default function OrderSummery() {
                                 <p className="text-xs text-zinc-500">Including delivery</p>
                             </div>
                             <p className="text-xl font-bold tracking-tight text-zinc-900 tabular-nums">
-                                ৳ 3,235
+                                ৳ {subTotal + deliveryCharge}
                             </p>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { CounterButton } from '@/components/counter-button';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/providers/cartProvider';
 import { product_discount } from '@/utils/product_discount';
@@ -7,7 +8,7 @@ import Image from 'next/image';
 
 export default function CartItems() {
 
-    const { carts, removeFromCart } = useCartStore(store => store);
+    const { carts, removeFromCart, updateQuantity } = useCartStore(store => store);
 
     const handleDelete = (id: number) => {
 
@@ -16,6 +17,11 @@ export default function CartItems() {
         if (!isConfirm) return;
 
         removeFromCart(id);
+    }
+
+
+    const handleUpdateQuantity = (id: number, quantity: number) => {
+        updateQuantity(id, quantity)
     }
 
     return (
@@ -35,6 +41,9 @@ export default function CartItems() {
                         <p>{cart.discountPrice} <span className="line-through">{cart.mainPrice}</span></p>
                         <p>{product_discount(cart.discount, cart.discount_type)}</p>
                         <p>Size: {cart.size}</p>
+
+                        <CounterButton min={1} initialCount={cart.quantity} onChange={(count) => handleUpdateQuantity(cart.id, count)} />
+
                     </div>
 
                     <div className="ml-auto">

@@ -12,16 +12,27 @@ import { generateEightDigitNumber } from "@/utils/genarateEightDigitsNumber";
 import { product_discount } from "@/utils/product_discount";
 import { productPriceAfterDiscount } from "@/utils/product_price_after_discount";
 import { product_price_range } from "@/utils/product_price_range";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+
+type PriceAndSizeType = { id: number; count: number; price: number; size: string; }
 
 export default function ProductDetails({ product }: { product: ProductType }) {
     const [orderBtnActive, setOrderBtnActive] = useState(true);
 
-    const [price_and_size, setPrice_and_size] = useState<{ id: number; count: number; price: number; size: string; }[]>([]);
+    const [price_and_size, setPrice_and_size] = useState<PriceAndSizeType[]>([
+        // {
+        //     "id": 4,
+        //     "count": 1,
+        //     "price": 1100,
+        //     "size": "M"
+        // }
+    ]);
 
     const { carts, addToCart } = useCartStore((state) => state)
 
+
+    // console.log(price_and_size, carts);
 
 
 
@@ -129,6 +140,13 @@ export default function ProductDetails({ product }: { product: ProductType }) {
     }
 
 
+    useEffect(() => {
+
+
+
+    }, []);
+
+
     return (
         <>
             <h1 className="text-5xl">{product.title}</h1>
@@ -149,7 +167,7 @@ export default function ProductDetails({ product }: { product: ProductType }) {
                         {checkCheckboxActive(item.id) &&
                             <div className="mt-3 flex items-center gap-2">
                                 <span>Quantity: </span>
-                                <CounterButton initialCount={1} onChange={(count) => handleUpdateCount(item.id, count)} />
+                                <CounterButton min={1} initialCount={1} onChange={(count) => handleUpdateCount(item.id, count)} />
                             </div>
                         }
                     </li>
