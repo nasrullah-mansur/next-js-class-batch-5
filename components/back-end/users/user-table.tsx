@@ -5,7 +5,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 
 type UserType = { id: number; name: string; email: string }
 
-export default function UserTable({ users }: { users: UserType[] }) {
+export default function UserTable({ users, onEdit, onDelete }: { users: UserType[], onEdit: (id: number) => void; onDelete: (id: number) => void }) {
 
     return (
         <Table>
@@ -19,7 +19,7 @@ export default function UserTable({ users }: { users: UserType[] }) {
             </TableHeader>
             <TableBody>
                 {users && users.map((user) => (
-                    <UserTableRow key={user.id} user={user} />
+                    <UserTableRow onDelete={onDelete} onEdit={onEdit} key={user.id} user={user} />
                 ))}
             </TableBody>
         </Table>

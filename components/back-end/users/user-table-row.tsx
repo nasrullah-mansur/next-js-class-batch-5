@@ -7,9 +7,9 @@ import { MoreHorizontal } from "lucide-react";
 
 type UserType = { id: number; name: string; email: string }
 
-export default function UserTableRow({ user }: { user: UserType }) {
+export default function UserTableRow({ user, onEdit, onDelete }: { user: UserType, onEdit: (id: number) => void; onDelete: (id: number) => void; }) {
 
-    const handleEdit = (user: UserType) => { }
+
     const handleDelete = (id: number) => { }
 
     return (
@@ -30,11 +30,11 @@ export default function UserTableRow({ user }: { user: UserType }) {
                     <DropdownMenuContent align="end">
                         <DropdownMenuGroup>
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleEdit(user)}>
+                            <DropdownMenuItem onClick={() => onEdit(user.id)}>
                                 Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() => handleDelete(user.id)}
+                                onClick={() => onDelete(user.id)}
                                 className="text-red-600"
                             >
                                 Delete
