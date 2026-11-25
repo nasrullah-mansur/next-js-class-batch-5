@@ -1,0 +1,2 @@
+
+export const productSize = ["S", "M", "L", "XL", "XXL"];
