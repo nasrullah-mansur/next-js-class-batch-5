@@ -17,6 +17,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="col-span-10 p-4">
                 {children}
             </div>
+
+
         </div>
     )
 }

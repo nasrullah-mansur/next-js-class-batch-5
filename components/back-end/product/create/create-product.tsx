@@ -3,7 +3,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
+
 
 import {
     createProductSchema,
@@ -42,8 +42,13 @@ import {
 import { FileUploader } from "@/components/ui/file-uploader";
 import { productSize } from "@/data/produt-size";
 import { Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function CreateProductForm() {
+
+    const router = useRouter();
+
     const form = useForm<createProductFormValues>({
         resolver: zodResolver(createProductSchema),
         defaultValues: {
@@ -92,7 +97,7 @@ export default function CreateProductForm() {
 
 
     const onSubmit = async (data: createProductFormValues) => {
-        console.log("Product data:", data);
+
 
         // export type ProductType = {
         //     id: number;
@@ -117,6 +122,7 @@ export default function CreateProductForm() {
         formData.append('discount_type', data.discount_type);
         formData.append('short_description', data.short_description);
         formData.append('details', data.details);
+        formData.append('price_and_size', JSON.stringify(data.price_and_size));
 
         if (data.image) {
             formData.append('image', data.image);
@@ -130,14 +136,6 @@ export default function CreateProductForm() {
             });
         }
 
-
-
-
-
-        // for (const key in data) {
-        //     formData.append(key, data[key]);
-        // }
-
         const response = await fetch('/api/product', {
             method: "POST",
             body: formData
@@ -147,9 +145,16 @@ export default function CreateProductForm() {
 
         console.log(responseData);
 
+        if (responseData.status) {
+            toast.success(responseData.message);
+
+            form.reset();
+
+            router.push('/back-end/products');
+        }
 
 
-        toast.success("Product data validated successfully!");
+
     };
 
     return (
