@@ -1,28 +1,18 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
-
+import { productSize } from "@/data/produt-size";
 import {
     createProductSchema,
     type createProductFormValues,
 } from "@/lib/validations/product-schema";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-
 import {
     Card,
     CardContent,
@@ -31,7 +21,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Field,
     FieldDescription,
@@ -40,13 +30,19 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { FileUploader } from "@/components/ui/file-uploader";
-import { productSize } from "@/data/produt-size";
-import { Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 export default function CreateProductForm() {
-
     const router = useRouter();
 
     const form = useForm<createProductFormValues>({
@@ -55,27 +51,16 @@ export default function CreateProductForm() {
             title: "",
             slug: "",
             image: undefined,
-            product_image_gallery: [
-                {
-                    src: undefined,
-                    alt: "",
-                },
-            ],
+            product_image_gallery: [{ src: undefined, alt: "" }],
             featured: false,
-            price_and_size: [
-                {
-                    size: "M",
-                    price: 0,
-                },
-            ],
+            price_and_size: [{ size: "M", price: 0 }],
             discount: 0,
             discount_type: "percent",
             short_description: "",
             details: "",
-        }
+        },
     });
 
-    // Gallery field array
     const {
         fields: galleryFields,
         append: appendGallery,
@@ -85,7 +70,6 @@ export default function CreateProductForm() {
         name: "product_image_gallery",
     });
 
-    // Size and price field array
     const {
         fields: priceFields,
         append: appendPrice,
@@ -95,154 +79,99 @@ export default function CreateProductForm() {
         name: "price_and_size",
     });
 
-
     const onSubmit = async (data: createProductFormValues) => {
-
-
-        // export type ProductType = {
-        //     id: number;
-        //     title: string;
-        //     slug: string;
-        //     image: string;
-        //     featured: boolean;
-        //     price_and_size: ProductPriceType[];
-        //     product_galleries?: ProductImageType[];
-        //     discount: number;
-        //     discount_type: "percent" | "fixed";
-        //     short_description: string;
-        //     details?: string;
-        // }
-
         const formData = new FormData();
 
-        formData.append('title', data.title);
-        formData.append('slug', data.slug);
-        formData.append('featured', data.featured ? 'true' : 'false');
-        formData.append('discount', String(data.discount));
-        formData.append('discount_type', data.discount_type);
-        formData.append('short_description', data.short_description);
-        formData.append('details', data.details);
-        formData.append('price_and_size', JSON.stringify(data.price_and_size));
+        formData.append("title", data.title);
+        formData.append("slug", data.slug);
+        formData.append("featured", String(data.featured));
+        formData.append("discount", String(data.discount));
+        formData.append("discount_type", data.discount_type);
+        formData.append("short_description", data.short_description);
+        formData.append("details", data.details);
+        formData.append("price_and_size", JSON.stringify(data.price_and_size));
 
         if (data.image) {
-            formData.append('image', data.image);
+            formData.append("image", data.image);
         }
 
-        if (data.product_image_gallery) {
-            data.product_image_gallery.forEach(({ src }) => {
-                if (src) {
-                    formData.append('product_image_gallery', src);
-                }
-            });
-        }
+        data.product_image_gallery?.forEach(({ src }) => {
+            if (src) formData.append("product_image_gallery", src);
+        });
 
-        const response = await fetch('/api/product', {
+        const response = await fetch("/api/product", {
             method: "POST",
-            body: formData
-        })
+            body: formData,
+        });
 
         const responseData = await response.json();
-
         console.log(responseData);
 
         if (responseData.status) {
             toast.success(responseData.message);
-
             form.reset();
-
-            router.push('/back-end/products');
+            router.push("/back-end/products");
         }
-
-
-
     };
+
+    const errors = form.formState.errors;
 
     return (
         <form
+            id="create-product-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
-            id="create-product-form"
         >
             {/* Basic Information */}
             <Card>
                 <CardHeader>
                     <CardTitle>Basic Information</CardTitle>
-                    <CardDescription>
-                        Enter your product details.
-                    </CardDescription>
+                    <CardDescription>Enter your product details.</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                     <FieldGroup>
-                        {/* Title */}
-                        <Controller
-                            name="title"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor="product-title">
-                                        Product Title
-                                    </FieldLabel>
-                                    <Input
-                                        {...field}
-                                        id="product-title"
-                                        placeholder="Enter product title"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
-                        />
+                        <Field data-invalid={!!errors.title}>
+                            <FieldLabel htmlFor="product-title">Product Title</FieldLabel>
+                            <Input
+                                id="product-title"
+                                placeholder="Enter product title"
+                                aria-invalid={!!errors.title}
+                                {...form.register("title")}
+                            />
+                            {errors.title && <FieldError errors={[errors.title]} />}
+                        </Field>
 
-                        {/* Slug */}
-                        <Controller
-                            name="slug"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor="product-slug">
-                                        Product Slug
-                                    </FieldLabel>
-                                    <Input
-                                        {...field}
-                                        id="product-slug"
-                                        placeholder="product-slug"
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    <FieldDescription>
-                                        Example: premium-cotton-panjabi
-                                    </FieldDescription>
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
-                        />
+                        <Field data-invalid={!!errors.slug}>
+                            <FieldLabel htmlFor="product-slug">Product Slug</FieldLabel>
+                            <Input
+                                id="product-slug"
+                                placeholder="product-slug"
+                                aria-invalid={!!errors.slug}
+                                {...form.register("slug")}
+                            />
+                            <FieldDescription>
+                                Example: premium-cotton-panjabi
+                            </FieldDescription>
+                            {errors.slug && <FieldError errors={[errors.slug]} />}
+                        </Field>
 
-                        {/* Main Image */}
                         <Controller
                             name="image"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
                                     <FieldLabel>Main Product Image</FieldLabel>
-
-
-
                                     <FileUploader
                                         value={field.value}
                                         onChange={field.onChange}
-                                        maxSize={5 * 1024 * 1024}
+                                        maxSize={MAX_IMAGE_SIZE}
                                     />
-
                                     {field.value && (
                                         <p className="text-sm text-muted-foreground">
                                             {field.value.name}
                                         </p>
                                     )}
-
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]} />
                                     )}
@@ -250,7 +179,6 @@ export default function CreateProductForm() {
                             )}
                         />
 
-                        {/* Featured */}
                         <Controller
                             name="featured"
                             control={form.control}
@@ -283,43 +211,29 @@ export default function CreateProductForm() {
             <Card>
                 <CardHeader>
                     <CardTitle>Product Image Gallery</CardTitle>
-                    <CardDescription>
-                        Add multiple product images.
-                    </CardDescription>
+                    <CardDescription>Add multiple product images.</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-
-
-
-
                     {galleryFields.map((item, index) => (
-                        <div
-                            key={item.id}
-                            className="flex items-start gap-3"
-                        >
+                        <div key={item.id} className="flex items-start gap-3">
                             <div className="flex-1">
                                 <Controller
                                     name={`product_image_gallery.${index}.src`}
                                     control={form.control}
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel>
-                                                Gallery Image {index + 1}
-                                            </FieldLabel>
-
+                                            <FieldLabel>Gallery Image {index + 1}</FieldLabel>
                                             <FileUploader
                                                 value={field.value}
                                                 onChange={field.onChange}
-                                                maxSize={5 * 1024 * 1024}
+                                                maxSize={MAX_IMAGE_SIZE}
                                             />
-
                                             {field.value instanceof File && (
                                                 <p className="text-sm text-muted-foreground">
                                                     {field.value.name}
                                                 </p>
                                             )}
-
                                             {fieldState.invalid && (
                                                 <FieldError errors={[fieldState.error]} />
                                             )}
@@ -342,12 +256,7 @@ export default function CreateProductForm() {
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() =>
-                            appendGallery({
-                                src: undefined,
-                                alt: "",
-                            })
-                        }
+                        onClick={() => appendGallery({ src: undefined, alt: "" })}
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Add Gallery Image
@@ -371,7 +280,6 @@ export default function CreateProductForm() {
                                 key={item.id}
                                 className="grid grid-cols-1 gap-4 rounded-md border p-4 sm:grid-cols-[1fr_1fr_auto]"
                             >
-                                {/* Size */}
                                 <Controller
                                     name={`price_and_size.${index}.size`}
                                     control={form.control}
@@ -382,19 +290,15 @@ export default function CreateProductForm() {
                                                 value={field.value}
                                                 onValueChange={field.onChange}
                                             >
-                                                <SelectTrigger
-                                                    aria-invalid={fieldState.invalid}
-                                                >
+                                                <SelectTrigger aria-invalid={fieldState.invalid}>
                                                     <SelectValue placeholder="Select size" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {productSize.map(
-                                                        (size) => (
-                                                            <SelectItem key={size} value={size}>
-                                                                {size}
-                                                            </SelectItem>
-                                                        )
-                                                    )}
+                                                    {productSize.map((size) => (
+                                                        <SelectItem key={size} value={size}>
+                                                            {size}
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                             {fieldState.invalid && (
@@ -404,7 +308,6 @@ export default function CreateProductForm() {
                                     )}
                                 />
 
-                                {/* Price */}
                                 <Controller
                                     name={`price_and_size.${index}.price`}
                                     control={form.control}
@@ -416,11 +319,11 @@ export default function CreateProductForm() {
                                                 min="1"
                                                 placeholder="1000"
                                                 value={field.value ?? ""}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     field.onChange(
-                                                        e.target.value === ""
+                                                        event.target.value === ""
                                                             ? undefined
-                                                            : Number(e.target.value)
+                                                            : Number(event.target.value),
                                                     )
                                                 }
                                                 aria-invalid={fieldState.invalid}
@@ -451,19 +354,15 @@ export default function CreateProductForm() {
                         type="button"
                         variant="outline"
                         className="mt-4"
-                        onClick={() =>
-                            appendPrice({
-                                size: "M",
-                                price: 0,
-                            })
-                        }
+                        onClick={() => appendPrice({ size: "M", price: 0 })}
                     >
-                        + Add Size & Price
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Size & Price
                     </Button>
 
-                    {form.formState.errors.price_and_size?.message && (
+                    {errors.price_and_size?.message && (
                         <p className="mt-2 text-sm text-destructive">
-                            {form.formState.errors.price_and_size.message}
+                            {errors.price_and_size.message}
                         </p>
                     )}
                 </CardContent>
@@ -473,14 +372,11 @@ export default function CreateProductForm() {
             <Card>
                 <CardHeader>
                     <CardTitle>Discount Information</CardTitle>
-                    <CardDescription>
-                        Configure product discounts.
-                    </CardDescription>
+                    <CardDescription>Configure product discounts.</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                     <FieldGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {/* Discount Value */}
                         <Controller
                             name="discount"
                             control={form.control}
@@ -492,11 +388,11 @@ export default function CreateProductForm() {
                                         min="0"
                                         placeholder="10"
                                         value={field.value ?? ""}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             field.onChange(
-                                                e.target.value === ""
+                                                event.target.value === ""
                                                     ? undefined
-                                                    : Number(e.target.value)
+                                                    : Number(event.target.value),
                                             )
                                         }
                                         aria-invalid={fieldState.invalid}
@@ -508,7 +404,6 @@ export default function CreateProductForm() {
                             )}
                         />
 
-                        {/* Discount Type */}
                         <Controller
                             name="discount_type"
                             control={form.control}
@@ -523,12 +418,8 @@ export default function CreateProductForm() {
                                             <SelectValue placeholder="Select discount type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="percent">
-                                                Percentage (%)
-                                            </SelectItem>
-                                            <SelectItem value="fixed">
-                                                Fixed Amount (৳)
-                                            </SelectItem>
+                                            <SelectItem value="percent">Percentage (%)</SelectItem>
+                                            <SelectItem value="fixed">Fixed Amount (৳)</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     {fieldState.invalid && (
@@ -552,43 +443,29 @@ export default function CreateProductForm() {
 
                 <CardContent>
                     <FieldGroup>
-                        <Controller
-                            name="short_description"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel>Short Description</FieldLabel>
-                                    <Textarea
-                                        {...field}
-                                        rows={3}
-                                        placeholder="Write a short product description..."
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
+                        <Field data-invalid={!!errors.short_description}>
+                            <FieldLabel>Short Description</FieldLabel>
+                            <Textarea
+                                rows={3}
+                                placeholder="Write a short product description..."
+                                aria-invalid={!!errors.short_description}
+                                {...form.register("short_description")}
+                            />
+                            {errors.short_description && (
+                                <FieldError errors={[errors.short_description]} />
                             )}
-                        />
+                        </Field>
 
-                        <Controller
-                            name="details"
-                            control={form.control}
-                            render={({ field, fieldState }) => (
-                                <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel>Product Details</FieldLabel>
-                                    <Textarea
-                                        {...field}
-                                        rows={6}
-                                        placeholder="Write complete product details..."
-                                        aria-invalid={fieldState.invalid}
-                                    />
-                                    {fieldState.invalid && (
-                                        <FieldError errors={[fieldState.error]} />
-                                    )}
-                                </Field>
-                            )}
-                        />
+                        <Field data-invalid={!!errors.details}>
+                            <FieldLabel>Product Details</FieldLabel>
+                            <Textarea
+                                rows={6}
+                                placeholder="Write complete product details..."
+                                aria-invalid={!!errors.details}
+                                {...form.register("details")}
+                            />
+                            {errors.details && <FieldError errors={[errors.details]} />}
+                        </Field>
                     </FieldGroup>
                 </CardContent>
             </Card>
@@ -596,21 +473,12 @@ export default function CreateProductForm() {
             {/* Form Actions */}
             <Card>
                 <CardFooter className="justify-end gap-3 pt-6">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => form.reset()}
-                    >
+                    <Button type="button" variant="outline" onClick={() => form.reset()}>
                         Reset
                     </Button>
 
-                    <Button
-                        type="submit"
-                        disabled={form.formState.isSubmitting}
-                    >
-                        {form.formState.isSubmitting
-                            ? "Creating..."
-                            : "Create Product"}
+                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting ? "Creating..." : "Create Product"}
                     </Button>
                 </CardFooter>
             </Card>

@@ -9,7 +9,9 @@ export type ProductType = {
     image: string;
     featured: boolean;
     price_and_size: ProductPriceType[];
+    product_prices: ProductPriceType[];
     product_galleries?: ProductImageType[];
+    product_images?: ProductImageType[];
     discount: number;
     discount_type: "percent" | "fixed";
     short_description: string;

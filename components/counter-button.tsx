@@ -1,9 +1,9 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import * as React from "react";
 import { cn } from "cn";
+import { Minus, Plus } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import * as React from "react";
 
 export interface CounterButtonProps {
   initialCount?: number;
@@ -71,6 +71,7 @@ export const CounterButton = ({
         type="button"
         onClick={increment}
         disabled={count >= max}
+
         className="flex h-full w-9 items-center justify-center rounded-r-md transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
       >
         <Plus className="size-3.5" />

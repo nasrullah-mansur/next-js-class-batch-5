@@ -77,3 +77,15 @@ export async function uploadToCloudinary(
         ).end(buffer);
     });
 }
+
+export async function deleteFromCloudinary(
+    publicId: string
+): Promise<void> {
+    if (!publicId) {
+        throw new Error("Cloudinary public ID is required");
+    }
+
+    await cloudinary.uploader.destroy(publicId, {
+        resource_type: "image",
+    });
+}

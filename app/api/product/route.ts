@@ -10,47 +10,6 @@ export async function POST(request: Request) {
     const cookie = await cookies();
     const db = createClient(cookie);
 
-    /**
-     * 1. Upload product data to products table
-     * 2. Upload product image and get image URL
-     * 3. Upload product gallery image and get URL then upload image info to product_galleries
-     * 4. Upload price and size to database named product_price_and_size / product_variants
-     */
-
-    /* 
-        export type ProductType = {
-            id: number;
-            title: string;
-            slug: string;
-            image: string;
-            featured: boolean;
-            price_and_size: ProductPriceType[];
-            product_galleries?: ProductImageType[];
-            discount: number;
-            discount_type: "percent" | "fixed";
-            short_description: string;
-            details?: string;
-        }
-
-        export type ProductPriceType = {
-            id: number;
-            product_id: number;
-            size: string;
-            price: number;
-        }
-
-        export type ProductImageType = {
-            id: number;
-            src: string;
-            alt: string;
-            product_id: string;
-        }
-
-        1. upload product image to cludinary;
-        2. upload product to database and get product id;
-        3 / 4. upload product price and type to database / upload product image to database;
-    
-        */
 
     const formData = await request.formData();
 
@@ -84,8 +43,6 @@ export async function POST(request: Request) {
                 slug: formData.get('slug'),
                 image: responseFromCloudinary.url,
                 featured: formData.get('featured') ? Boolean(formData.get('featured')) : false,
-                // price_and_size: ProductPriceType[];
-                // product_galleries?: ProductImageType[];
                 discount: formData.get('discount'),
                 discount_type: formData.get('discount_type'),
                 short_description: formData.get('short_description'),
@@ -108,6 +65,14 @@ export async function POST(request: Request) {
                         }
                     )))
                     .select();
+
+
+                if (priceError) {
+                    return Response.json({
+                        status: false,
+                        message: "price data uploading failed",
+                    })
+                }
 
 
                 product_image_gallery.forEach(async (imageFileFromFormData: any) => {
